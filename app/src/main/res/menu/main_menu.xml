@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:title="发布商品"
+        app:showAsAction="never"
+        android:id="@+id/add"/>
+
+    <item android:title="退出登录"
+
+        app:showAsAction="never"
+        android:id="@+id/quit"
+        android:icon="@drawable/quit"/>
+</menu>

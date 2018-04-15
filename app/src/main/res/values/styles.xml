@@ -1,0 +1,33 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="ToolBarPopupTheme" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item><!--设置不覆盖锚点-->
+        <!--背景颜色-->
+        <item name="android:colorBackground">@color/colorPrimary</item>
+
+        <!--选项颜色-->
+        <item name="android:textColor">#fff</item>
+
+    </style>
+
+    <style name="ToolBarThem" parent="Widget.AppCompat.Toolbar">
+        <!--menu图标颜色-->
+        <item name="android:textColorSecondary">#ffffff</item>
+
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+
+</resources>
