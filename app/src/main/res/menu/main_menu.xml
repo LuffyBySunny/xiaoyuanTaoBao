@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <item android:title="发布商品"
-        app:showAsAction="never"
-        android:id="@+id/add"/>
-
-    <item android:title="退出登录"
-
-        app:showAsAction="never"
-        android:id="@+id/quit"
-        android:icon="@drawable/quit"/>
+    <group android:checkableBehavior="single"
+        android:id="@+id/group1">
+        <item android:title="我的"
+            android:icon="@drawable/my"
+            android:id="@+id/my"/>
+    </group>
+    <group android:checkableBehavior="single"
+        android:id="@+id/group2">
+        <item android:title="发布商品"
+            android:icon="@drawable/add2"
+            android:id="@+id/add"/>
+        <item android:title="退出登录"
+            android:id="@+id/quit"
+            android:icon="@drawable/quit"/>
+    </group>
 </menu>

@@ -13,6 +13,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.Map;
+import java.util.Set;
+
 public class registeActivity extends AppCompatActivity {
 
     private SharedPreferences mSharedPreferences;
@@ -21,7 +24,7 @@ public class registeActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private Button registeButton;
     private Toolbar mToolbar;
-    boolean cancel=false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +44,7 @@ public class registeActivity extends AppCompatActivity {
             //actionBar.setDisplayHomeAsUpEnabled(true);
         }
         registeButton.setOnClickListener(v->{
+            boolean cancel=false;
             // Check for a valid password, if the user entered one.
             View focusView = null;
             String email=mEmailView.getText().toString();
@@ -51,14 +55,30 @@ public class registeActivity extends AppCompatActivity {
                 focusView = mPasswordView;
                 cancel = true;
             }
-
             if (!isEmailValid(email)) {
                 mEmailView.setError("Email必须包含@");
                 focusView = mEmailView;
                 cancel = true;
+            }else{
+                /*判断是否存在该用户*/
+               try{
+                   SharedPreferences  mSharedPreferences = getSharedPreferences("users", MODE_PRIVATE);
+                   Map map=mSharedPreferences.getAll();
+                   Set set=map.keySet();
+                   for(Object o: set){
+                       if(email.equals(o)){
+                           mEmailView.setError("用户名已存在");
+                           focusView = mEmailView;
+                           cancel = true;
+                       }
+                   }
+               }catch (Exception e){
+
+               }
             }
 
             if(!cancel) {
+
                 //存储注册信息
                 mSharedPreferences = getSharedPreferences("users", MODE_PRIVATE);
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
@@ -68,7 +88,6 @@ public class registeActivity extends AppCompatActivity {
                 intent.putExtra("email",email);
                 intent.putExtra("password",password);
                 setResult(RESULT_OK,intent);
-
                 Toast.makeText(v.getContext(), "注册成功", Toast.LENGTH_SHORT).show();
                 finish();
             }else {
@@ -77,12 +96,7 @@ public class registeActivity extends AppCompatActivity {
                }
             }
         });
-
-
-
-
     }
-
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
         return email.contains("@");

@@ -1,10 +1,30 @@
 package com.example.droodsunny.taobao.Unit;
 
+import android.graphics.Bitmap;
+
 public class Goods {
-    private double price;
+    public String getEmail() {
+        return Email;
+    }
+
+    public void setEmail(String email) {
+        Email = email;
+    }
+
+    private String Email;
+    private float price;
     private String goodsName;
     private String category;
-    private int Imageid;
+
+    public Bitmap getImage() {
+        return image;
+    }
+
+    public void setImage(Bitmap image) {
+        this.image = image;
+    }
+
+    private Bitmap image;
     private String description;
 
     public String getDescription() {
@@ -15,14 +35,11 @@ public class Goods {
         this.description = description;
     }
 
-
-
-
-    public double getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 
@@ -43,13 +60,6 @@ public class Goods {
     }
 
 
-    public int getImageid() {
-        return Imageid;
-    }
-
-    public void setImageid(int imageid) {
-        Imageid = imageid;
-    }
 
 
 }

@@ -1,11 +1,11 @@
 package com.example.droodsunny.taobao.Unit;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 //实现序列化的用户
 
-public class User implements Parcelable {
+public class User  {
     private String email;
+    private boolean ifremePass;
+    private boolean ifauto;
     public String getEmail() {
         return email;
     }
@@ -23,35 +23,19 @@ public class User implements Parcelable {
     }
 
     private String password;
-
-    @Override
-    public int describeContents() {
-        return 0;
+    public boolean isIfremePass() {
+        return ifremePass;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.email);
-        dest.writeString(this.password);
+    public void setIfremePass(boolean ifremePass) {
+        this.ifremePass = ifremePass;
     }
 
-    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+    public boolean isIfauto() {
+        return ifauto;
+    }
 
-        @Override
-        public User createFromParcel(Parcel source) {
-            User user = new User();
-            user.email = source.readString();
-            user.password = source.readString();
-            return user;
-        }
-
-        @Override
-        public User[] newArray(int size) {
-            return new User[0];
-        }
-
-    };
-
-
-
+    public void setIfauto(boolean ifauto) {
+        this.ifauto = ifauto;
+    }
 }

@@ -22,4 +22,6 @@
     <string name="taobao">校园淘宝</string>
     <string name="todo">TODO</string>
     <string name="title_activity_add_goods">AddGoods</string>
+    <string name="input">请输入商品名称</string>
+    <string name="description">请输入描述</string>
 </resources>

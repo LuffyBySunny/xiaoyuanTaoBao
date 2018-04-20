@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     tools:context=".LoginActivity">
@@ -40,20 +39,13 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:visibility="gone" />
-
-
-    <ScrollView
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-       android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:id="@+id/login_form"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
         <LinearLayout
-
-            android:id="@+id/email_login_form"
+            android:layout_marginTop="70dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/login_form"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -70,6 +62,7 @@
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
+                android:layout_marginTop="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <EditText
@@ -106,22 +99,19 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content" />
             </LinearLayout>
+
             <Button
                 android:id="@+id/email_sign_in_button"
-                style="?android:textAppearanceSmall"
+                style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="50dp"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="100dp"
                 android:text="@string/action_sign_in_short"
                 android:textStyle="bold" />
 
-            <android.support.v7.widget.SearchView
-                android:gravity="end"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            </android.support.v7.widget.SearchView>
-
         </LinearLayout>
-    </ScrollView>
+
 </LinearLayout>

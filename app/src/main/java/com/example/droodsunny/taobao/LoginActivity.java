@@ -35,20 +35,16 @@ public class LoginActivity extends AppCompatActivity  {
     /**
      * Id to identity READ_CONTACTS permission request.
      */
-    private static final int REQUEST_READ_CONTACTS = 0;
-    private static final int requestcode=1;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
+    private static final int requestcode=1;
+    private static final int requestcode1=2;
+
+
+    public static LoginActivity sLoginActivity;
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private  UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -63,13 +59,18 @@ public class LoginActivity extends AppCompatActivity  {
    private SharedPreferences rememberP;
    private SharedPreferences messageUser;
    private SharedPreferences users;
-    boolean cancel = false;
+
+   private static boolean Login=false;
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        sLoginActivity=this;
         //初始化Bmob
 
         Bmob.initialize(this, "1ac735ea998d3f3e71b3c082f96eb4fd");
@@ -78,6 +79,7 @@ public class LoginActivity extends AppCompatActivity  {
 
         autologin=findViewById(R.id.autoLogin);
         remember=findViewById(R.id.remember);
+
         //如果选自动登录，必定选记住密码
         autologin.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(!autologin.isChecked()){
@@ -85,8 +87,6 @@ public class LoginActivity extends AppCompatActivity  {
             }
             remember.setChecked(true);
         });
-
-
 
         Toolbar toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -96,10 +96,10 @@ public class LoginActivity extends AppCompatActivity  {
         }
 
         toolbar.findViewById(R.id.registe).setOnClickListener(view->{
-
             Intent intent =new Intent(LoginActivity.this,registeActivity.class);
-         /*  startActivityForResult(intent,requestcode);*/
-         startActivity(intent);
+           startActivityForResult(intent,requestcode);
+
+
 
         });
 
@@ -120,10 +120,11 @@ public class LoginActivity extends AppCompatActivity  {
 
 
         //登录
-        mEmailSignInButton.setOnClickListener(view ->
-                attemptLogin());
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        mEmailSignInButton.setOnClickListener(view ->
+                attemptLogin());
+
     }
 
 
@@ -136,12 +137,10 @@ public class LoginActivity extends AppCompatActivity  {
         if (mAuthTask != null) {
             return;
         }
-
-
+        boolean cancel = false;
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
-
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
@@ -150,18 +149,9 @@ public class LoginActivity extends AppCompatActivity  {
         Map usersMap=users.getAll();
         Set usersSet=usersMap.keySet();
 
-        /*for(Object emailcell:usersSet){
-            if(emailcell.equals(email)){
-                break;
-            }
-        }*/
-
 
         View focusView = null;
-
         // Check for a valid password, if the user entered one.
-
-
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             Log.d("seterror","error");
@@ -181,33 +171,6 @@ public class LoginActivity extends AppCompatActivity  {
         focusView = mPasswordView;
         cancel = true;
     }
-
-        //save state
-
-        //保存记住密码状态
-        if(remember.isChecked()&&!cancel){
-            rememberP=getSharedPreferences("rememberPassword",MODE_PRIVATE);
-            SharedPreferences.Editor editor=rememberP.edit();
-            editor.putBoolean("ifRemember",true);
-            editor.apply();
-        }
-
-
-        //保存自动登录状态
-        if(autologin.isChecked()&&!cancel){
-            autoLogin=getSharedPreferences("autoLogin",MODE_PRIVATE);
-            SharedPreferences.Editor editor= autoLogin.edit();
-            editor.putBoolean("ifAuto",true);
-            editor.apply();
-        }
-
-        if(!cancel) {
-            //保存本次输入信息,只有在退出登录时，才会回到此页面，那时候就清空保存的信息
-            messageUser = getSharedPreferences("messageUser", MODE_PRIVATE);
-            SharedPreferences.Editor editor = messageUser.edit();
-            editor.putString(email, password);
-            editor.apply();
-        }
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -224,16 +187,6 @@ public class LoginActivity extends AppCompatActivity  {
             mAuthTask.execute((Void) null);
         }
     }
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
-
     /**
      * Shows the progress UI and hides the login form.
      */
@@ -242,71 +195,75 @@ public class LoginActivity extends AppCompatActivity  {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        int shortAnimTime = getResources().getInteger(android.R.integer.config_longAnimTime);
-
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
         mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+        /*mLoginFormView.animate().setDuration(shortAnimTime).alpha(
                 show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
             }
-        });
+        });*/
         mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
         mProgressView.animate().setDuration(shortAnimTime).alpha(
                 show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
             @Override
-            //动画结束
             public void onAnimationEnd(Animator animation) {
                 mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-
             }
         });
     }
 
     @Override
-    protected void onResume() {
+    protected void onStart() {
         //取出缓存
         try {
             SharedPreferences ifRemember = getSharedPreferences("rememberPassword", MODE_PRIVATE);
-            boolean ifRem = ifRemember.getBoolean("ifRemember", false);
+           boolean  ifRem = ifRemember.getBoolean("ifRemember", false);
             SharedPreferences ifAutoLogin = getSharedPreferences("autoLogin", MODE_PRIVATE);
-            boolean ifAuto = ifAutoLogin.getBoolean("ifAuto", false);
+           boolean  ifAuto = ifAutoLogin.getBoolean("ifAuto", false);
             SharedPreferences usermessage = getSharedPreferences("messageUser", MODE_PRIVATE);
             Map map = usermessage.getAll();
             Set set = map.keySet();
             ArrayList<String> arrayList = new ArrayList<>();
-
             Iterator iterator = set.iterator();
             while (iterator.hasNext()) {
                 arrayList.add((String) iterator.next());
             }
-
+            //只记住最近一次登陆的用户
             String userEmail = arrayList.get(0);
             String userPassword = usermessage.getString(userEmail, null);
             if (ifRem && ifAuto) {
                 mEmailView.setText(userEmail);
                 mPasswordView.setText(userPassword);
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                remember.setChecked(true);
+                autologin.setChecked(true);
+                //每次自动登陆之后就清空缓存
+
+
+
+                //尝试登录
+               attemptLogin();
+
             } else if (ifRem) {
+                remember.setChecked(true);
                 mEmailView.setText(userEmail);
                 mPasswordView.setText(userPassword);
+
+            }else {
+                mEmailView.setText(userEmail);
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        super.onResume();
+        super.onStart();
     }
-
     //*
     // 判断是否有该用户*/
     private boolean ifexists(String email,Set set){
         for(Object o : set){
             if(email.equals(o)) {
                 return true;
-
             }
         }
         return false;
@@ -319,7 +276,7 @@ public class LoginActivity extends AppCompatActivity  {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    private class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    private  class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         private final String mEmail;
         private final String mPassword;
         UserLoginTask(String email, String password) {
@@ -329,55 +286,97 @@ public class LoginActivity extends AppCompatActivity  {
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-
+            //应该放这里查询,返回查询结果
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            //应该放这里查询,返回查询结果
+            //如果任务被取消
+           if(isCancelled()){
+                return null;
+           }
 
-
-            // TODO: register the new account here.
             return true;
         }
         @Override
         //得到 doInBackground的返回结果
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            showProgress(false);
+            Login=true;
+          // showProgress(false);
             if (success) {
                 //登陆成功
                 Intent intent =new Intent(LoginActivity.this,MainActivity.class);
-                startActivity(intent);
-                finish();
+                intent.putExtra("username",mEmail);
+                intent.putExtra("password",mPassword);
+                 //登录,如果没记住密码，密码清空
+                 if(!remember.isChecked()){
+                    mPasswordView.setText(null);
+                }
+                  startActivityForResult(intent,requestcode1);
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }
         }
-
         @Override
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
         }
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
        if(requestCode==requestcode){
            if(resultCode==RESULT_OK){
+               //从注册页面返回
                mEmailView.setText(data.getStringExtra("email"));
                mPasswordView.setText(data.getStringExtra("password"));
            }
        }
+       if (requestCode==requestcode1){
+           showProgress(false);
+       }
     }
 
-    @Override
-    protected void onPause() {
 
-        super.onPause();
+    //销毁之前记住当前登陆的用户信息
+    @Override
+    protected void onDestroy() {
+        //save state
+        //保存记住密码状态
+        if(remember.isChecked()&&Login){
+            rememberP=getSharedPreferences("rememberPassword",MODE_PRIVATE);
+            SharedPreferences.Editor editor=rememberP.edit();
+            editor.putBoolean("ifRemember",true);
+            editor.apply();
+        }
+        //保存自动登录状态
+        if(autologin.isChecked()&&Login){
+            autoLogin=getSharedPreferences("autoLogin",MODE_PRIVATE);
+            SharedPreferences.Editor editor= autoLogin.edit();
+            editor.putBoolean("ifAuto",true);
+            editor.apply();
+        }
+        if(Login){
+            //保存上次登陆的用户
+            SharedPreferences usermessage = getSharedPreferences("messageUser", MODE_PRIVATE);
+            SharedPreferences.Editor editor=usermessage.edit();
+            editor.putString(mEmailView.getText().toString(),mPasswordView.getText().toString());
+            editor.apply();
+        }
+        //activity销毁的时候就停止AsyncTask
+
+        if(mAuthTask!=null&&mAuthTask.getStatus()== AsyncTask.Status.RUNNING){
+            mAuthTask.cancel(true);
+        }
+        super.onDestroy();
+    }
+    @Override
+    protected void onResume() {
+        Login=false;
+        super.onResume();
     }
 }
 
