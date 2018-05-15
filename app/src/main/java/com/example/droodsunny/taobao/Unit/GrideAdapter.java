@@ -47,17 +47,11 @@ public class GrideAdapter extends BaseAdapter {
         }else {
             viewHolder= (ViewHolder) convertView.getTag();
         }
-        if(mGoodsList.get(position).getImage().equals(viewHolder.image.getTag())){
-
-        }else {
-           /*如果不相等就加载图片*/
-           viewHolder.image.setTag(mGoodsList.get(position).getImage());
-        }
 
         viewHolder.Email.setText(goods.getEmail());
         viewHolder.name.setText(goods.getGoodsName());
         viewHolder.price.setText(String.format("%s", goods.getPrice()));
-        viewHolder.image.setImageBitmap(goods.getImage());
+       // viewHolder.image.setImageBitmap(goods.getImage());
 
         return convertView;
     }

@@ -1,38 +1,38 @@
 package com.example.droodsunny.taobao;
 
-import android.Manifest;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v13.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.droodsunny.taobao.Unit.MyDBHelper;
+import com.example.droodsunny.taobao.Unit.Goods;
+import com.example.droodsunny.taobao.Unit.PathGetter;
 
 import org.angmarch.views.NiceSpinner;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Objects;
+
+import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.SaveListener;
+import cn.bmob.v3.listener.UploadFileListener;
 
 public class AddGoods extends AppCompatActivity {
 
@@ -43,8 +43,6 @@ public class AddGoods extends AppCompatActivity {
     private ImageView mImageView1;
     private ImageView mImageView2;
     private ImageView mImageView3;
-    private SQLiteDatabase db;
-    private static final String TABLE_NAME="GoodsInfo";
    private String Email;
     private static final int IMAGE1=1;
     private static final int IMAGE2=2;
@@ -52,15 +50,21 @@ public class AddGoods extends AppCompatActivity {
 
     boolean addimage=false;
     ArrayList<String> item;
+
+    private ArrayList<BmobFile> imagesArray;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_goods);
 
-        db=MyDBHelper.getInstance(getApplicationContext());
+        imagesArray=new ArrayList<>();
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mNiceSpinner = findViewById(R.id.nice_spinner);
+
+
 
         nameEdit=findViewById(R.id.name);
         desEdit=findViewById(R.id.description);
@@ -82,27 +86,18 @@ public class AddGoods extends AppCompatActivity {
         item.add("电子产品");
         mNiceSpinner.attachDataSource(item);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mImageView1.setImageDrawable(getDrawable(R.drawable.addgoods));
-            mImageView2.setImageDrawable(getDrawable(R.drawable.addgoods));
-            mImageView3.setImageDrawable(getDrawable(R.drawable.addgoods));
-        }else {
-            mImageView1.setImageResource(R.drawable.addgoods);
-            mImageView2.setImageResource(R.drawable.addgoods);
-            mImageView3.setImageResource(R.drawable.addgoods);
-        }
+
+        mImageView1.setImageResource(R.drawable.addgoods);
+
+
         mImageView1.setOnClickListener(v ->{
               /*打开照片选择界面*/
               //请求权限
-             if(ContextCompat.checkSelfPermission(AddGoods.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
-                 ActivityCompat.requestPermissions(AddGoods.this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
-             }else {
                  //选择照片
                  openAlbum(IMAGE1);
                  addimage=true;
                  Handler handler=new Handler();
                  handler.postDelayed(() -> mImageView2.setVisibility(View.VISIBLE),1000);
-             }
                 } );
         mImageView2.setOnClickListener(v-> {
             openAlbum(IMAGE2);
@@ -124,7 +119,7 @@ public class AddGoods extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view ->{
             //用户
-            View focusview=null;
+
             boolean cancle=false;
             nameEdit.setError(null);
             desEdit.setError(null);
@@ -136,6 +131,7 @@ public class AddGoods extends AppCompatActivity {
             //描述
             String description=desEdit.getText().toString();
             //价格
+
 
             //对image进行转码
             if(TextUtils.isEmpty(name)){
@@ -156,59 +152,27 @@ public class AddGoods extends AppCompatActivity {
              }
              if(!cancle) {
                  float price=Float.parseFloat(priceEdit.getText().toString());
-                 mImageView1.setDrawingCacheEnabled(true);
-                 Bitmap bitmap = mImageView1.getDrawingCache();
-                 //图片
-
-                 byte[] bytes = bitmapToBytes(bitmap);
-                 bitmap.recycle();
-                 addGoods(db, Email, name, type, price, bytes, description);
-                 Toast.makeText(AddGoods.this,"添加成功",Toast.LENGTH_SHORT).show();
+                 //将商品添加到Bmob
+                 addtoBmob(Email,name,type,price,imagesArray,description);
                  finish();
              }
         });
     }
-
-    private void addGoods(SQLiteDatabase db,String Email,String name,String type,float price,byte[] imageByte,String description){
-        ContentValues values = new ContentValues();
-        values.put("Email",Email);
-        values.put("name",name);
-        values.put("type",type);
-        values.put("price",price);
-        values.put("image",imageByte);
-        values.put("description",description);
-        db.insert(TABLE_NAME,null,values);
-
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode==1){
-            for(int i:grantResults){
-                if(i==PackageManager.PERMISSION_GRANTED){
-                    //打开相册
-                   openAlbum(IMAGE1);
-                    addimage=true;
-                }else {
-                    Toast.makeText(AddGoods.this,"用户拒绝打开相册",Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
-
     //打开相册
-
     public void openAlbum(int requestCode){
         //打开相册
         Intent intent =new Intent("android.intent.action.GET_CONTENT");
         intent.setType("image/*");
         startActivityForResult(intent,requestCode);
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode==IMAGE1){
             if(resultCode==RESULT_OK){
                 handleimage(mImageView1,data);
+                imagesArray.add(new BmobFile(new File(Objects.requireNonNull(PathGetter.getPath(AddGoods.this, data.getData())))));
+
+                mImageView2.setImageResource(R.drawable.addgoods);
             }else {
                 //如果添加失败
                 mImageView1.setImageResource(R.drawable.addgoods);
@@ -217,50 +181,144 @@ public class AddGoods extends AppCompatActivity {
         }else if(requestCode==IMAGE2){
             if(resultCode==RESULT_OK){
                 handleimage(mImageView2,data);
-            }else {
-                mImageView2.setImageResource(R.drawable.addgoods);
+                imagesArray.add(new BmobFile(new File(Objects.requireNonNull(PathGetter.getPath(AddGoods.this, data.getData())))));
+
+                mImageView3.setImageResource(R.drawable.addgoods);
             }
         }else if(requestCode==IMAGE3){
             if(resultCode==RESULT_OK){
                 handleimage(mImageView3,data);
-            }else {
-                mImageView3.setImageResource(R.drawable.addgoods);
+                imagesArray.add(new BmobFile(new File(Objects.requireNonNull(PathGetter.getPath(AddGoods.this, data.getData())))));
+
             }
         }
     }
-
     public void handleimage(ImageView imageView,Intent data){
         ContentResolver contentResolver=getContentResolver();
         Bitmap bitmap2 = null;
         try {
-           //找到正确的缩放
+            //得到图像的宽高
+           BitmapFactory.Options options=new BitmapFactory.Options();
+            options.inJustDecodeBounds=true;
+            BitmapFactory.decodeStream(contentResolver.openInputStream(Objects.requireNonNull(data.getData())),null,options);
+            int imageWidth=options.outWidth;
+            int imageHeight=options.outHeight;
+            //将图像的显示设置为centerCrop型
             BitmapFactory.Options options1=new BitmapFactory.Options();
-            options1.inSampleSize=8;
             bitmap2=BitmapFactory.decodeStream(contentResolver.openInputStream(Objects.requireNonNull(data.getData())),null,options1);
             imageView.setImageBitmap(bitmap2);
-
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         }
 
+   /* private WeakReference<Bitmap> getBitmapFromBlum(Uri data) throws FileNotFoundException {
+        Bitmap bitmap= BitmapFactory.decodeStream(getContentResolver().openInputStream(data),null,null);
+        return new WeakReference<>(bitmap);
+    }*/
+
+
+    private boolean addtoBmob(String Email,String goodsName,String type,float price,ArrayList<BmobFile> images,String description){
+
+
+        Goods goods=new Goods();
+        ArrayList<String> imagesUrl=new ArrayList<>();
+        goods.setEmail(Email);
+        goods.setGoodsName(goodsName);
+        goods.setCategory(type);
+        goods.setPrice(price);
+        goods.setDescription(description);
+
+        Handler handler=new Handler(msg -> {
+            //如果已经全部上传成功
+            if(msg.what==1){
+                goods.setImage(imagesUrl);
+                goods.save(new SaveListener<String>() {
+                    @Override
+                    public void done(String s, BmobException e) {
+                        if(e!=null){
+                            Log.d("goodsException",e.toString());
+                        }
+                    }
+                });
+            }
+            return true;
+        });
+        for(int i=0;i<images.size();i++) {
+            BmobFile bmobFile=images.get(i);
+            bmobFile.upload(new UploadFileListener() {
+                @Override
+                public void done(BmobException e) {
+                    if(e==null) {
+                        imagesUrl.add(bmobFile.getFileUrl());
+                        //说明已经全部上传成功
+                        if(images.size()==imagesUrl.size()){
+                            handler.sendEmptyMessage(1);
+                        }
+                    }else {
+                        Toast.makeText(AddGoods.this,"上传失败",Toast.LENGTH_SHORT).show();
+                        Log.d("goodsException",e.toString());
+
+                    }
+                }
+            });
+
+        }
+
+        return true;
+    }
+
+
+
+
     public byte[] bitmapToBytes(Bitmap bitmap){
         int size = bitmap.getWidth() * bitmap.getHeight() * 4;
         ByteArrayOutputStream baos= new ByteArrayOutputStream(size);
         bitmap.compress(Bitmap.CompressFormat.PNG,100,baos);
         return baos.toByteArray();
-
     }
+
+   /* private String saveImage(String goodsName) throws FileNotFoundException {
+        StringBuilder stringBuilder=new StringBuilder();
+        Bitmap bitmap=null;
+        File file=null;
+
+        for(int j=0;j<imageUriList.size();j++){
+            bitmap=BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUriList.get(j)),null,null);
+            file=new File(dirPath+"/"+goodsName+j+".png");
+
+           if(j!=imageUriList.size()-1){
+               stringBuilder.append(dirPath).append("/").append(goodsName).append(j).append(".png").append(",");
+           }
+           FileOutputStream fileOutputStream=new FileOutputStream(file);
+            //将bitmap转成png格式并存入文件
+            bitmap.compress(Bitmap.CompressFormat.PNG,100,fileOutputStream);
+        }
+
+        return stringBuilder.toString();
+    }
+*/
+
+    /*private void addGoods(SQLiteDatabase db,String Email,String name,String type,float price,String imagesPath,String description){
+        ContentValues values = new ContentValues();
+        values.put("Email",Email);
+        values.put("name",name);
+        values.put("type",type);
+        values.put("price",price);
+        values.put("image",imagesPath);
+        values.put("description",description);
+
+        db.insert(TABLE_NAME,null,values);
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
                 finish();
-                return true;
-                default:
-                    return super.onOptionsItemSelected(item);
+                break;
         }
+        return super.onOptionsItemSelected(item);
     }
 }

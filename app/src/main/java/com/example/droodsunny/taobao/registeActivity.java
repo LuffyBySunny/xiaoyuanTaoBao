@@ -1,6 +1,5 @@
 package com.example.droodsunny.taobao;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -13,8 +12,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.util.Map;
-import java.util.Set;
+import com.example.droodsunny.taobao.Unit.User;
+
+import java.util.List;
+
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.SaveListener;
 
 public class registeActivity extends AppCompatActivity {
 
@@ -24,13 +29,16 @@ public class registeActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private Button registeButton;
     private Toolbar mToolbar;
+    boolean cancel;
+    // Check for a valid password, if the user entered one.
+    View focusView;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registe);
-
-
 
         mEmailView =  findViewById(R.id.email);
         mPasswordView =  findViewById(R.id.password);
@@ -44,9 +52,8 @@ public class registeActivity extends AppCompatActivity {
             //actionBar.setDisplayHomeAsUpEnabled(true);
         }
         registeButton.setOnClickListener(v->{
-            boolean cancel=false;
-            // Check for a valid password, if the user entered one.
-            View focusView = null;
+           cancel=false;
+           focusView=null;
             String email=mEmailView.getText().toString();
             String password=mPasswordView.getText().toString();
 
@@ -60,41 +67,42 @@ public class registeActivity extends AppCompatActivity {
                 focusView = mEmailView;
                 cancel = true;
             }else{
-                /*判断是否存在该用户*/
-               try{
-                   SharedPreferences  mSharedPreferences = getSharedPreferences("users", MODE_PRIVATE);
-                   Map map=mSharedPreferences.getAll();
-                   Set set=map.keySet();
-                   for(Object o: set){
-                       if(email.equals(o)){
-                           mEmailView.setError("用户名已存在");
-                           focusView = mEmailView;
-                           cancel = true;
-                       }
-                   }
-               }catch (Exception e){
-
-               }
-            }
-
-            if(!cancel) {
-
-                //存储注册信息
-                mSharedPreferences = getSharedPreferences("users", MODE_PRIVATE);
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                editor.putString(email, password);
-                editor.apply();
-                Intent intent =new Intent();
-                intent.putExtra("email",email);
-                intent.putExtra("password",password);
-                setResult(RESULT_OK,intent);
-                Toast.makeText(v.getContext(), "注册成功", Toast.LENGTH_SHORT).show();
-                finish();
-            }else {
-               if(focusView!=null) {
-                   focusView.requestFocus();
-               }
-            }
+              BmobQuery<User> bmobQuery=new BmobQuery<>();
+              //查询所有的用户名
+              bmobQuery.addQueryKeys("Email");
+              //要在回掉方法里面
+              bmobQuery.findObjects(new FindListener<User>() {
+                  @Override
+                  public void done(List<User> list, BmobException e) {
+                      if(list!=null){
+                          for(User user:list){
+                              if(user.getEmail().equals(email)){
+                                  mEmailView.setError("该用户名已经存在");
+                                  focusView=mEmailView;
+                                  cancel=true;
+                              }
+                          }
+                      }
+                      if(!cancel){
+                          User user=new User();
+                          user.setEmail(email);
+                          user.setPassword(password);
+                          user.save(new SaveListener<String>() {
+                              @Override
+                              public void done(String s, BmobException e) {
+                                  if(e==null){
+                                      Toast.makeText(v.getContext(),"注册成功",Toast.LENGTH_SHORT).show();
+                                  }else {
+                                      Toast.makeText(v.getContext(),"网络错误，注册失败",Toast.LENGTH_SHORT).show();
+                                  }
+                              }
+                          });
+                      }else {
+                          focusView.requestFocus();
+                      }
+                  }
+              });
+              }
         });
     }
     private boolean isEmailValid(String email) {
@@ -106,6 +114,9 @@ public class registeActivity extends AppCompatActivity {
         //TODO: Replace this with your own logic
         return password.length() > 4;
     }
-
+    /*查询用户名，并保存*/
 
 }
+
+
+

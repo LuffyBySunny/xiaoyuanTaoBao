@@ -8,4 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowTranslucentStatus">true</item>
     </style>
+
+    <style name="toolbarHomeColor">
+        <item name="android:colorControlNormal">#fff</item>
+    </style>
 </resources>

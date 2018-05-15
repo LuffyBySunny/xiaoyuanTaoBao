@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DetailActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="300dp">
+        </android.support.v4.view.ViewPager>
+        <LinearLayout
+            android:layout_below="@+id/viewpager"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:gravity="end"
+                android:padding="10dp"
+                android:id="@+id/price_text"
+                android:textSize="20sp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+            <TextView
+                android:padding="10dp"
+                android:textSize="20sp"
+                android:id="@+id/good_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+                <TextView
+                    android:padding="10dp"
+                    android:textSize="20sp"
+                    android:id="@+id/user_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                 <TextView
+                android:textSize="20sp"
+                android:padding="10dp"
+                android:id="@+id/description_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+                </LinearLayout>
+
+
+
+
+    </RelativeLayout>
+
+</ScrollView>

@@ -9,9 +9,10 @@
         <android.support.v7.widget.Toolbar
             android:paddingTop="20dp"
             android:id="@+id/toolbar"
+            android:theme="@style/toolbarHomeColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
+            android:background="@color/colorPrimary"
            >
             <TextView
                 android:layout_gravity="center"

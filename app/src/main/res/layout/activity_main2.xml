@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Main2Activity">
+    <LinearLayout
+
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <android.support.v7.widget.Toolbar
+                android:theme="@style/ToolBarThem"
+                android:id="@+id/toolbar"
+                android:fitsSystemWindows="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                >
+                <TextView
+                    android:id="@+id/toolbarText"
+                    android:paddingTop="15dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+
+                    android:textColor="#ffffff"
+                    android:textSize="20sp" />
+            </android.support.v7.widget.Toolbar>
+        </android.support.design.widget.AppBarLayout>
+        <FrameLayout
+            android:id="@+id/fragment"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp">
+        </FrameLayout>
+        <LinearLayout
+            android:layout_gravity="bottom"
+            android:background="@color/colorPrimary"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="60dp">
+
+            <Button
+                android:paddingTop="5dp"
+                android:id="@+id/home"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+
+                android:drawableTop="@drawable/home"
+                android:scaleType="centerInside"
+                android:text="首页"
+                android:textColor="#fff"
+                android:textSize="10sp" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+            <Button
+                android:paddingTop="5dp"
+                android:id="@+id/my"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+
+                android:drawableTop="@drawable/me"
+                android:scaleType="centerInside"
+                android:text="我的"
+                android:textColor="#fff"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+
+    <android.support.design.widget.FloatingActionButton
+        app:borderWidth="0dp"
+        android:id="@+id/add"
+        app:backgroundTint="@color/colorPrimary"
+        app:pressedTranslationZ="25dp"
+        app:elevation="5dp"
+        app:rippleColor="#515151"
+        android:layout_gravity="bottom|center"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/add2"
+        app:srcCompat="@drawable/add2"  />
+</FrameLayout>

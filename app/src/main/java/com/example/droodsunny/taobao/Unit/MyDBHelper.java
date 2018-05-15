@@ -3,7 +3,6 @@ package com.example.droodsunny.taobao.Unit;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 public class MyDBHelper extends SQLiteOpenHelper {
     private static final String myDBname="Goods.db";
    private static MyDBHelper mMyDBHelper;
@@ -14,7 +13,7 @@ public class MyDBHelper extends SQLiteOpenHelper {
             "name TEXT,"+
             "type TEXT,"+
             "price REAL,"+
-            "image BLOB,"+
+            "image TEXT,"+
             "description TEXT)";
     private MyDBHelper(Context context, String name, int version) {
         super(context, name, null, version);
@@ -24,7 +23,6 @@ public class MyDBHelper extends SQLiteOpenHelper {
             mMyDBHelper=new MyDBHelper(context,myDBname,1);
             return mMyDBHelper.getReadableDatabase();
         }else {
-
             return mMyDBHelper.getReadableDatabase();
         }
     }
@@ -34,9 +32,7 @@ public class MyDBHelper extends SQLiteOpenHelper {
          //   db.execSQL("delete from "+TABLE_NAME);
             db.execSQL(CREATE_TABLE);
         db.execSQL("delete from "+TABLE_NAME);
-
     }
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 

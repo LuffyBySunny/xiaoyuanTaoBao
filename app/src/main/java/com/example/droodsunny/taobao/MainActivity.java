@@ -1,32 +1,21 @@
 package com.example.droodsunny.taobao;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.GridView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.droodsunny.taobao.Unit.Goods;
-import com.example.droodsunny.taobao.Unit.GrideAdapter;
-import com.example.droodsunny.taobao.Unit.MyDBHelper;
+import com.example.droodsunny.taobao.Unit.RecyclerAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -37,10 +26,14 @@ public class MainActivity extends AppCompatActivity {
 
     SQLiteDatabase db;
 
-    private GridView mGridView;
+
+    private DrawerLayout mDrawerLayout;
     String mEmail;
-    private   GrideAdapter grideAdapter;
-    private List<Goods> goodsList;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerAdapter mRecyclerAdapter;
+    private final List<Goods> goodsList= Collections.synchronizedList(new ArrayList<>());
+
 
     private NavigationView mNavigationView;
 
@@ -50,13 +43,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mGridView=findViewById(R.id.gridView);
+        /*setContentView(R.layout.activity_main);
+
 
         mSwipeRefreshLayout =findViewById(R.id.swiperefresh);
+        mDrawerLayout=findViewById(R.id.drawer_layout);
 
         mNavigationView=findViewById(R.id.nav_view);
+        mRecyclerView=findViewById(R.id.recyclerView);
+        GridLayoutManager layoutManager=new GridLayoutManager(this,2);
+        mRecyclerView.setLayoutManager(layoutManager);
 
+        ((DefaultItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         View headView=mNavigationView.getHeaderView(0);
         TextView textView=headView.findViewById(R.id.username);
         //得到用户名
@@ -67,16 +65,17 @@ public class MainActivity extends AppCompatActivity {
 
          db= MyDBHelper.getInstance(getApplicationContext());
 
-         DisplayMetrics dm=new DisplayMetrics();
+ DisplayMetrics dm=new DisplayMetrics();
          getWindowManager().getDefaultDisplay().getMetrics(dm);
          ViewGroup.LayoutParams p=mGridView.getLayoutParams();
          p.width=dm.widthPixels;
          p.height=dm.heightPixels;
          mGridView.setLayoutParams(p);
-        //准备数据源
-         goodsList=new ArrayList<>();
 
+        //准备数据源,线程安全的
         addButton=findViewById(R.id.add);
+
+
         addButton.setOnClickListener(v -> {
             //打开添加商品页
            Intent intent1=new Intent(MainActivity.this,AddGoods.class);
@@ -93,8 +92,33 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar=getSupportActionBar();
         if(actionBar!=null){
             actionBar.setTitle(" ");
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_home);
         }
 
+        Handler handler=new Handler(msg -> {
+            switch (msg.what){
+                //查询成功，加载数据
+                case 1:
+                    mRecyclerAdapter=new RecyclerAdapter(goodsList);
+                    mRecyclerView.setAdapter(mRecyclerAdapter);
+            }
+            return true;
+        });
+
+        //回调方法,查询数据
+        query(db, new SQLCallback() {
+            @Override
+            public void onFinish() {
+                Message message=new Message();
+                message.what=1;
+                handler.sendMessage(message);
+            }
+            @Override
+            public void onFailure() {
+                runOnUiThread(() -> Toast.makeText(MainActivity.this,"加载失败,请刷新",Toast.LENGTH_SHORT).show());
+            }
+        });
         mNavigationView.setNavigationItemSelectedListener(item -> {
             switch (item.getItemId()){
                 case R.id.my:
@@ -122,15 +146,13 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
-
         mSwipeRefreshLayout.setOnRefreshListener(() -> {
                     //回调方法
-            goodsList.clear();
             query(db, new SQLCallback() {
                 @Override
                 public void onFinish() {
                    runOnUiThread(()->{
-                       grideAdapter.notifyDataSetChanged();
+                       mRecyclerAdapter.notifyDataSetChanged();
                        mSwipeRefreshLayout.setRefreshing(false);
                    });
                 }
@@ -141,88 +163,108 @@ public class MainActivity extends AppCompatActivity {
                          mSwipeRefreshLayout.setRefreshing(false);
                      });
                 }
-            },goodsList);
+            });
                 });
-        /*退出登录*/
+退出登录
 
-
+*/
     }
-    @Override
+  /*  @Override
     public void onBackPressed() {
-        LoginActivity.sLoginActivity.finish();
-        super.onBackPressed();
+        if(LoginActivity.sLoginActivity!=null) {
+            LoginActivity.sLoginActivity.finish();
+
+            super.onBackPressed();
+        }else {
+            super.onBackPressed();
+        }
     }
     private interface SQLCallback{
        //接口中的变量都是public static final
          void onFinish();
          void onFailure();
     }
-    private void query(SQLiteDatabase sqLiteDatabase, SQLCallback sqlCallback,List<Goods> goodsList){
+    private void query(SQLiteDatabase sqLiteDatabase, SQLCallback sqlCallback){
         //开启子线程进行查询
         new Thread(() -> {
-            Cursor cursor=null;
-            try {
-                cursor=sqLiteDatabase.query("GoodsInfo",null,null,null,null,null,null);
-                while (cursor.moveToNext()){
-                    Goods goods=new Goods();
-                    String Email=cursor.getString(1);
-                    String name=cursor.getString(2);
-                    String type=cursor.getString(3);
-                    float price=cursor.getFloat(4);
-                    byte[] image=cursor.getBlob(5);
-                    String description=cursor.getString(6);
-                    Bitmap bitmap= BitmapFactory.decodeByteArray(image,0,image.length);
-                    goods.setEmail(Email);
-                    goods.setGoodsName(name);
-                    goods.setCategory(type);
-                    goods.setPrice(price);
-                    goods.setImage(bitmap);
-                    goods.setDescription(description);
-                    goodsList.add(goods);
-                    sqlCallback.onFinish();
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-                sqlCallback.onFailure();
-            }finally {
-                if(cursor!=null){
-                    cursor.close();
+            //给goodlist加锁
+            synchronized (goodsList) {
+                goodsList.clear();
+                Cursor cursor = null;
+                try {
+                    cursor = sqLiteDatabase.query("GoodsInfo", null, null, null, null, null, null);
+                    while (cursor.moveToNext()) {
+                        Goods goods = new Goods();
+                        String Email = cursor.getString(1);
+                        String name = cursor.getString(2);
+                        String type = cursor.getString(3);
+                        float price = cursor.getFloat(4);
+ byte[] image = cursor.getBlob(5);
+
+                        String string=cursor.getString(5);
+                        String description = cursor.getString(6);
+ ArrayList imagelist=new ArrayList(Arrays.asList(string.split(",")));
+                        String simage=(String) imagelist.get(0)+"]";
+                        byte[] image=simage.getBytes();
+
+
+                        goods.setEmail(Email);
+                        goods.setGoodsName(name);
+                        goods.setCategory(type);
+                        goods.setPrice(price);
+                        goods.setImage(string);
+                        goods.setDescription(description);
+                        goodsList.add(goods);
+                        sqlCallback.onFinish();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    sqlCallback.onFailure();
+                } finally {
+                    if (cursor != null) {
+                        cursor.close();
+                    }
                 }
             }
-        }).start();
+        }
+        ).start();
     }
     @Override
     protected void onResume() {
-        goodsList.clear();
-        //回调方法
-        Handler handler=new Handler(msg -> {
-            switch (msg.what){
-                //查询成功，加载数据
-                case 1:
-                    grideAdapter=new GrideAdapter(goodsList);
-                    mGridView.setAdapter(grideAdapter);
-            }
-            return true;
-        });
         //回调方法
         query(db, new SQLCallback() {
             @Override
             public void onFinish() {
-                Message message=new Message();
-                message.what=1;
-                handler.sendMessage(message);
+                runOnUiThread(()->{
+                    mRecyclerAdapter.notifyDataSetChanged();
+                    mSwipeRefreshLayout.setRefreshing(false);
+                });
             }
             @Override
             public void onFailure() {
-                runOnUiThread(() -> Toast.makeText(MainActivity.this,"加载失败,请刷新",Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this,"刷新失败",Toast.LENGTH_SHORT).show();
+                    mSwipeRefreshLayout.setRefreshing(false);
+                });
             }
-        },goodsList);
+        });
         super.onResume();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(Gravity.START);
+                return true;
+                default:
+                    return false;
+        }
     }
 
     @Override
     protected void onDestroy() {
         db.close();
         super.onDestroy();
-    }
+    }*/
 }

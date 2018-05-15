@@ -2,16 +2,17 @@ package com.example.droodsunny.taobao.Unit;
 
 //实现序列化的用户
 
-public class User  {
-    private String email;
-    private boolean ifremePass;
-    private boolean ifauto;
+import cn.bmob.v3.BmobObject;
+
+public class User extends BmobObject {
+    private String Email;
+
     public String getEmail() {
-        return email;
+        return Email;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.Email = email;
     }
 
     public String getPassword() {
@@ -23,19 +24,5 @@ public class User  {
     }
 
     private String password;
-    public boolean isIfremePass() {
-        return ifremePass;
-    }
 
-    public void setIfremePass(boolean ifremePass) {
-        this.ifremePass = ifremePass;
-    }
-
-    public boolean isIfauto() {
-        return ifauto;
-    }
-
-    public void setIfauto(boolean ifauto) {
-        this.ifauto = ifauto;
-    }
 }

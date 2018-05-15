@@ -78,31 +78,8 @@
                     android:singleLine="true" />
 
             </android.support.design.widget.TextInputLayout>
-
-            <LinearLayout
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="50dp">
-                <CheckBox
-                    android:id="@+id/remember"
-                    android:textSize="15sp"
-                    android:text="@string/remember"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content" />
-                <CheckBox
-                    android:id="@+id/autoLogin"
-                    android:textSize="15sp"
-                    android:text="@string/autoLogin"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
             <Button
                 android:id="@+id/email_sign_in_button"
-                style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
